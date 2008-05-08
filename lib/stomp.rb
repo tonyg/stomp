@@ -24,7 +24,7 @@ module Stomp
   class Connection
 
     def Connection.open(login = "", passcode = "", host='localhost', port=61613, reliable=FALSE, reconnectDelay=5)
-      Connection.new login, passcode, host, port, reliable, reconnectDelay        
+      Connection.new login, passcode, host, port, reliable, reconnectDelay
     end
 
     # Create a connection, requires a login and passcode.
@@ -45,7 +45,7 @@ module Stomp
       @failure = NIL
       socket
     end
-  
+
     def socket
       # Need to look into why the following synchronize does not work.
       #@read_semaphore.synchronize do
@@ -55,14 +55,14 @@ module Stomp
           begin
             s = TCPSocket.open @host, @port
             _transmit(s, "CONNECT", {:login => @login, :passcode => @passcode})
-            @connect = _receive(s)                        
+            @connect = _receive(s)
             # replay any subscriptions.
             @subscriptions.each { |k,v| _transmit(s, "SUBSCRIBE", v) }
-          rescue 
+          rescue
             @failure = $!;
             s=NIL;
             raise unless @reliable
-            $stderr.print "connect failed: " + $! +" will retry in #{@reconnectDelay}\n";                
+            $stderr.print "connect failed: " + $! +" will retry in #{@reconnectDelay}\n";
             sleep(@reconnectDelay);
           end
         end
@@ -70,24 +70,24 @@ module Stomp
         return s;
       #end
     end
-  
+
     # Is this connection open?
     def open?
       !@closed
     end
-  
+
     # Is this connection closed?
     def closed?
       @closed
     end
-  
+
     # Begin a transaction, requires a name for the transaction
     def begin name, headers={}
       headers[:transaction] = name
       transmit "BEGIN", headers
     end
-  
-    # Acknowledge a message, used then a subscription has specified 
+
+    # Acknowledge a message, used then a subscription has specified
     # client acknowledgement ( connection.subscribe "/queue/a", :ack => 'client'g
     #
     # Accepts a transaction header ( :transaction => 'some_transaction_id' )
@@ -95,7 +95,7 @@ module Stomp
       headers['message-id'] = message_id
       transmit "ACK", headers
     end
-      
+
     # Commit a transaction by name
     def commit name, headers={}
       headers[:transaction] = name
@@ -107,19 +107,19 @@ module Stomp
       headers[:transaction] = name
       transmit "ABORT", headers
     end
-  
+
     # Subscribe to a destination, must specify a name
     def subscribe(name, headers = {}, subId=NIL)
       headers[:destination] = name
       transmit "SUBSCRIBE", headers
-      
+
       # Store the sub so that we can replay if we reconnect.
       if @reliable
         subId = name if subId==NIL
         @subscriptions[subId]=headers
       end
     end
-  
+
     # Unsubscribe from a destination, must specify a name
     def unsubscribe(name, headers = {}, subId=NIL)
       headers[:destination] = name
@@ -129,7 +129,7 @@ module Stomp
         @subscriptions.delete(subId)
       end
     end
-  
+
     # Send message to destination
     #
     # Accepts a transaction header ( :transaction => 'some_transaction_id' )
@@ -137,12 +137,12 @@ module Stomp
       headers[:destination] = destination
       transmit "SEND", headers, message
     end
-  
+
     # Close this connection
     def disconnect(headers = {})
       transmit "DISCONNECT", headers
     end
-  
+
     # Return a pending message if one is available, otherwise
     # return nil
     def poll
@@ -151,7 +151,7 @@ module Stomp
         return receive
       end
     end
-      
+
     # Receive a frame, block until the frame is received
     def __old_receive
       # The recive my fail so we may need to retry.
@@ -159,21 +159,21 @@ module Stomp
         begin
           s = socket
           return _receive(s)
-        rescue 
+        rescue
           @failure = $!;
           raise unless @reliable
           $stderr.print "receive failed: " + $!;
         end
       end
     end
-    
+
     def receive
       super_result = __old_receive()
       if super_result.nil? && @reliable
         $stderr.print "connection.receive returning EOF as nil - resetting connection.\n"
         @socket = nil
         super_result = __old_receive()
-      end         
+      end
       return super_result
     end
 
@@ -191,7 +191,7 @@ module Stomp
             v = (line.strip[line.strip.index(':') + 1, line.strip.length]).strip
             m.headers[k] = v
           end
-          
+
           if (m.headers['content-length'])
             m.body = s.read m.headers['content-length'].to_i
             c = s.getc
@@ -223,7 +223,7 @@ module Stomp
         end
       end
     end
-      
+
     private
     def _transmit(s, command, headers={}, body='')
       @transmit_semaphore.synchronize do
@@ -241,11 +241,11 @@ module Stomp
   # Container class for frames, misnamed technically
   class Message
     attr_accessor :headers, :body, :command
-    
+
     def initialize
       yield(self) if block_given?
     end
-    
+
     def to_s
       "<Stomp::Message headers=#{headers.inspect} body='#{body}' command='#{command}' >"
     end
@@ -258,7 +258,7 @@ module Stomp
   # in that thread if you have much message volume.
   class Client
 
-    # Accepts a username (default ""), password (default ""), 
+    # Accepts a username (default ""), password (default ""),
     # host (default localhost), and port (default 61613)
     def initialize user="", pass="", host="localhost", port=61613, reliable=false
       if user =~ /stomp:\/\/([\w\.]+):(\d+)/
@@ -274,7 +274,7 @@ module Stomp
         port = $4
         reliable = false
       end
-      
+
       @id_mutex = Mutex.new
       @ids = 1
       @connection = Connection.open user, pass, host, port, reliable
@@ -288,7 +288,7 @@ module Stomp
           case
           when message == NIL:
             break
-          when message.command == 'MESSAGE': 
+          when message.command == 'MESSAGE':
             if listener = @listeners[message.headers['destination']]
               listener.call(message)
             end
@@ -300,14 +300,14 @@ module Stomp
         end
       end
     end
-    
+
     # Join the listener thread for this client,
     # generally used to wait for a quit signal
     def join
       @listener_thread.join
     end
 
-    # Accepts a username (default ""), password (default ""), 
+    # Accepts a username (default ""), password (default ""),
     # host (default localhost), and port (default 61613)
     def self.open user="", pass="", host="localhost", port=61613, reliable=false
       Client.new user, pass, host, port, reliable
@@ -322,10 +322,10 @@ module Stomp
     def abort name, headers={}
       @connection.abort name, headers
 
-      # lets replay any ack'd messages in this transaction      
+      # lets replay any ack'd messages in this transaction
       replay_list = @replay_messages_by_txn[name]
       if replay_list
-        replay_list.each do |message| 
+        replay_list.each do |message|
           if listener = @listeners[message.headers['destination']]
             listener.call(message)
           end
@@ -339,8 +339,8 @@ module Stomp
       @replay_messages_by_txn.delete(txn_id)
       @connection.commit name, headers
     end
-    
-    # Subscribe to a destination, must be passed a block 
+
+    # Subscribe to a destination, must be passed a block
     # which will be used as a callback listener
     #
     # Accepts a transaction header ( :transaction => 'some_transaction_id' )
@@ -356,7 +356,7 @@ module Stomp
       @listeners[name] = nil
     end
 
-    # Acknowledge a message, used then a subscription has specified 
+    # Acknowledge a message, used then a subscription has specified
     # client acknowledgement ( connection.subscribe "/queue/a", :ack => 'client'g
     #
     # Accepts a transaction header ( :transaction => 'some_transaction_id' )
@@ -379,7 +379,7 @@ module Stomp
 
     # Send message to destination
     #
-    # If a block is given a receipt will be requested and passed to the 
+    # If a block is given a receipt will be requested and passed to the
     # block on receipt
     #
     # Accepts a transaction header ( :transaction => 'some_transaction_id' )
@@ -394,11 +394,11 @@ module Stomp
     def open?
       @connection.open?
     end
-    
+
     # Close out resources in use by this client
     def close
       @connection.disconnect
-      @running = false 
+      @running = false
     end
 
     private
@@ -411,6 +411,6 @@ module Stomp
       @receipt_listeners[id] = listener
       id
     end
-        
+
   end
 end

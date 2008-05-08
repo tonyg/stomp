@@ -29,14 +29,14 @@ class TestStomp < Test::Unit::TestCase
   def make_destination
     "/queue/test/ruby/stomp/" + name()
   end
-  
+
   def _test_transaction
     @conn.subscribe make_destination
-    
+
     # Drain the destination.
-    sleep 0.01 while 
+    sleep 0.01 while
     sleep 0.01 while @conn.poll!=nil
-    
+
     @conn.begin "tx1"
     @conn.send make_destination, "txn message", 'transaction' => "tx1"
 
@@ -45,12 +45,12 @@ class TestStomp < Test::Unit::TestCase
     sleep 0.01
     msg = @conn.receive
     assert_equal "first message", msg.body
-    
+
     @conn.commit "tx1"
     msg = @conn.receive
     assert_equal "txn message", msg.body
   end
-  
+
   def test_connection_exists
     assert_not_nil @conn
   end

@@ -18,8 +18,8 @@ begin; require 'rubygems'; rescue; end
 require 'stomp'
 
 #
-# This simple script is inspired by the netcat utility.  It allows you to send 
-# input into this process to stomp destination. 
+# This simple script is inspired by the netcat utility.  It allows you to send
+# input into this process to stomp destination.
 #
 # Usage: catstomp (destination-name)
 #
@@ -27,29 +27,29 @@ require 'stomp'
 #   Would send the output of the ls command to the stomp destination /topic/foo
 #
 begin
-  
+
     @port = 61613
     @host = "localhost"
     @user = ENV["STOMP_USER"];
     @password = ENV["STOMP_PASSWORD"]
-    
+
     @host = ENV["STOMP_HOST"] if ENV["STOMP_HOST"] != nil
     @port = ENV["STOMP_PORT"] if ENV["STOMP_PORT"] != nil
-    
+
     @destination = "/topic/default"
     @destination = $*[0] if $*[0] != nil
-    
+
     $stderr.print "Connecting to stomp://#{@host}:#{@port} as #{@user}\n"
     @conn = Stomp::Connection.open @user, @password, @host, @port, true
     $stderr.print "Sending input to #{@destination}\n"
 
-    @headers = {'persistent'=>'false'} 
+    @headers = {'persistent'=>'false'}
     @headers['reply-to'] = $*[1] if $*[1] != nil
 
-    STDIN.each_line { |line| 
+    STDIN.each_line { |line|
         @conn.send @destination, line, @headers
     }
 
-rescue 
+rescue
 end
 
