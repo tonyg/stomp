@@ -105,7 +105,7 @@ module Stomp
       @listeners[name] = nil
     end
 
-    # Acknowledge a message, used then a subscription has specified
+    # Acknowledge a message, used when a subscription has specified
     # client acknowledgement ( connection.subscribe "/queue/a", :ack => 'client'g
     #
     # Accepts a transaction header ( :transaction => 'some_transaction_id' )
