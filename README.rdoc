@@ -3,8 +3,10 @@
 An implementation of the Stomp protocol for Ruby.
 
 Project Source :
-http://svn.codehaus.org/stomp/ruby/trunk
+  http://svn.codehaus.org/stomp/ruby/trunk
 
 Project Home :
-http://rubyforge.org/projects/stomp/
+  http://rubyforge.org/projects/stomp/
 
+Stomp Protocol Info :
+  http://stomp.codehaus.org/Protocol

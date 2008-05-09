@@ -3,6 +3,7 @@
 * Whitespace cleanup
 * Refactored Rakefile and added stomp.gemspec for GitHub friendliness.
 * Added .gitignore file
+* Refactored layout of lib dir to separate concerns
 
 == v1.0.5
 
