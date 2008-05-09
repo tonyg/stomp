@@ -1,0 +1,11 @@
+== 1.0.6 2008-05-08
+
+* Whitespace cleanup
+* Refactored Rakefile and added stomp.gemspec for GitHub friendliness.
+* Added .gitignore file
+
+== v1.0.5
+
+SVN rev 86 clone from http://svn.codehaus.org/stomp/ruby/trunk
+
+git-svn-id: http://svn.codehaus.org/stomp/ruby/trunk@86 fd4e7336-3dff-0310-b68a-b6615a75f13b

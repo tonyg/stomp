@@ -1,0 +1,10 @@
+==README
+
+An implementation of the Stomp protocol for Ruby.
+
+Project Source :
+http://svn.codehaus.org/stomp/ruby/trunk
+
+Project Home :
+http://rubyforge.org/projects/stomp/
+

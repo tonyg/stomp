@@ -13,29 +13,21 @@
 #   limitations under the License.
 
 require 'rubygems'
-require 'rake'
-require 'rake/testtask'
-require 'rake/clean'
 require 'rake/gempackagetask'
+require 'rake/testtask'
+require 'rake/rdoctask'
 
-Gem::manage_gems
-
-task :default => ['test']
-
-spec = Gem::Specification.new do |s|
-  s.name = "stomp"
-  s.version = "1.0.5"
-  s.author = "Brian McCallister"
-  s.email = "brianm@apache.org"
-  s.homepage = "http://stomp.codehaus.org/"
-  s.platform = Gem::Platform::RUBY
-  s.summary = "Ruby client for the Stomp messaging protocol"
-  s.files =  FileList["lib/stomp.rb"]
-  s.require_path = "lib"
-end
+# read the contents of the gemspec, eval it, and assign it to 'spec'
+# this lets us maintain all gemspec info in one place.  Nice and DRY.
+spec = eval(IO.read("stomp.gemspec"))
 
 Rake::GemPackageTask.new(spec) do |pkg|
-  pkg.need_tar = true
+  pkg.gem_spec = spec
+  #pkg.need_tar = true
+end
+
+task :install => [:package] do
+  sh %{sudo gem install pkg/#{GEM}-#{VERSION}}
 end
 
 Rake::TestTask.new do |t|
@@ -43,3 +35,11 @@ Rake::TestTask.new do |t|
   t.test_files = FileList['test/test*.rb']
   t.verbose = true
 end
+
+Rake::RDocTask.new do |rd|
+  rd.main = "README.rdoc"
+  rd.rdoc_files.include("README.rdoc", "lib/**/*.rb")
+  rd.rdoc_dir = 'doc'
+  rd.options = spec.rdoc_options
+end
+
