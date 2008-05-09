@@ -5,7 +5,7 @@ module Stomp
   class Connection
 
     def Connection.open(login = "", passcode = "", host='localhost', port=61613, reliable=FALSE, reconnectDelay=5)
-      Connection.new login, passcode, host, port, reliable, reconnectDelay
+      Connection.new(login, passcode, host, port, reliable, reconnectDelay)
     end
 
     # Create a connection, requires a login and passcode.
@@ -65,7 +65,7 @@ module Stomp
     # Begin a transaction, requires a name for the transaction
     def begin(name, headers = {})
       headers[:transaction] = name
-      transmit "BEGIN", headers
+      transmit("BEGIN", headers)
     end
 
     # Acknowledge a message, used when a subscription has specified
@@ -74,37 +74,37 @@ module Stomp
     # Accepts a transaction header ( :transaction => 'some_transaction_id' )
     def ack(message_id, headers = {})
       headers['message-id'] = message_id
-      transmit "ACK", headers
+      transmit("ACK", headers)
     end
 
     # Commit a transaction by name
     def commit(name, headers = {})
       headers[:transaction] = name
-      transmit "COMMIT", headers
+      transmit("COMMIT", headers)
     end
 
     # Abort a transaction by name
     def abort(name, headers = {})
       headers[:transaction] = name
-      transmit "ABORT", headers
+      transmit("ABORT", headers)
     end
 
     # Subscribe to a destination, must specify a name
     def subscribe(name, headers = {}, subId = nil)
       headers[:destination] = name
-      transmit "SUBSCRIBE", headers
+      transmit("SUBSCRIBE", headers)
 
       # Store the sub so that we can replay if we reconnect.
       if @reliable
         subId = name if subId.nil?
-        @subscriptions[subId]=headers
+        @subscriptions[subId] = headers
       end
     end
 
     # Unsubscribe from a destination, must specify a name
     def unsubscribe(name, headers = {}, subId = nil)
       headers[:destination] = name
-      transmit "UNSUBSCRIBE", headers
+      transmit("UNSUBSCRIBE", headers)
       if @reliable
         subId = name if subId.nil?
         @subscriptions.delete(subId)
@@ -116,12 +116,12 @@ module Stomp
     # Accepts a transaction header ( :transaction => 'some_transaction_id' )
     def send(destination, message, headers = {})
       headers[:destination] = destination
-      transmit "SEND", headers, message
+      transmit("SEND", headers, message)
     end
 
     # Close this connection
     def disconnect(headers = {})
-      transmit "DISCONNECT", headers
+      transmit("DISCONNECT", headers)
       @closed = true
     end
 

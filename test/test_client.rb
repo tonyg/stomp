@@ -59,7 +59,7 @@ class TestClient < Test::Unit::TestCase
 
     # was never acked so should be resent to next client
 
-    @client = Stomp::Client.new "test", "user", "localhost", 61613
+    @client = Stomp::Client.new("test", "user", "localhost", 61613)
     received = nil
     @client.subscribe(destination) {|msg| received = msg}
     sleep 0.01 until received

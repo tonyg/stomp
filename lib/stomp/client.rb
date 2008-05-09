@@ -26,7 +26,7 @@ module Stomp
 
       @id_mutex = Mutex.new
       @ids = 1
-      @connection = Connection.open user, pass, host, port, reliable
+      @connection = Connection.open(user, pass, host, port, reliable)
       @listeners = {}
       @receipt_listeners = {}
       @running = true
@@ -59,17 +59,17 @@ module Stomp
     # Accepts a username (default ""), password (default ""),
     # host (default localhost), and port (default 61613)
     def self.open(user = "", pass = "", host = "localhost", port = 61613, reliable = false)
-      Client.new user, pass, host, port, reliable
+      Client.new(user, pass, host, port, reliable)
     end
 
     # Begin a transaction by name
     def begin(name, headers = {})
-      @connection.begin name, headers
+      @connection.begin(name, headers)
     end
 
     # Abort a transaction by name
     def abort(name, headers = {})
-      @connection.abort name, headers
+      @connection.abort(name, headers)
 
       # lets replay any ack'd messages in this transaction
       replay_list = @replay_messages_by_txn[name]
@@ -86,7 +86,7 @@ module Stomp
     def commit(name, headers = {})
       txn_id = headers[:transaction]
       @replay_messages_by_txn.delete(txn_id)
-      @connection.commit name, headers
+      @connection.commit(name, headers)
     end
 
     # Subscribe to a destination, must be passed a block
@@ -96,12 +96,12 @@ module Stomp
     def subscribe(destination, headers = {})
       raise "No listener given" unless block_given?
       @listeners[destination] = lambda {|msg| yield msg}
-      @connection.subscribe destination, headers
+      @connection.subscribe(destination, headers)
     end
 
     # Unsubecribe from a channel
     def unsubscribe(name, headers = {})
-      @connection.unsubscribe name, headers
+      @connection.unsubscribe(name, headers)
       @listeners[name] = nil
     end
 
@@ -136,7 +136,7 @@ module Stomp
       if block_given?
         headers['receipt'] = register_receipt_listener lambda {|r| yield r}
       end
-      @connection.send destination, message, headers
+      @connection.send(destination, message, headers)
     end
 
     # Is this client open?

@@ -40,7 +40,7 @@ begin
     @destination = $*[0] if $*[0] != nil
 
     $stderr.print "Connecting to stomp://#{@host}:#{@port} as #{@user}\n"
-    @conn = Stomp::Connection.open @user, @password, @host, @port, true
+    @conn = Stomp::Connection.open(@user, @password, @host, @port, true)
     $stderr.print "Sending input to #{@destination}\n"
 
     @headers = {'persistent'=>'false'}
