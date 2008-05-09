@@ -129,7 +129,7 @@ module Stomp
     # return nil
     def poll
       @read_semaphore.synchronize do
-        return nil if @socket.nil? or !@socket.ready?
+        return nil if @socket.nil? || !@socket.ready?
         return receive
       end
     end
