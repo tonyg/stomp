@@ -30,7 +30,7 @@ module Stomp
       @listeners = {}
       @receipt_listeners = {}
       @running = true
-      @replay_messages_by_txn = Hash.new
+      @replay_messages_by_txn = {}
       @listener_thread = Thread.start do
         while @running
           message = @connection.receive
