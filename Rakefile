@@ -23,7 +23,7 @@ spec = eval(IO.read("stomp.gemspec"))
 
 Rake::GemPackageTask.new(spec) do |pkg|
   pkg.gem_spec = spec
-  #pkg.need_tar = true
+  pkg.need_tar = true
 end
 
 task :install => [:package] do
