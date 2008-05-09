@@ -66,4 +66,16 @@ class TestStomp < Test::Unit::TestCase
     assert_equal "a\0" , msg.body
   end
 
+  def test_conection_open?
+    assert_equal true , @conn.open?
+    @conn.disconnect
+    assert_equal false, @conn.open?
+  end
+
+  def test_conection_closed?
+    assert_equal false, @conn.closed?
+    @conn.disconnect
+    assert_equal true, @conn.closed?
+  end
+
 end

@@ -144,6 +144,11 @@ module Stomp
       @connection.open?
     end
 
+    # Is this client closed?
+    def closed?
+      @connection.closed?
+    end
+
     # Close out resources in use by this client
     def close
       @connection.disconnect

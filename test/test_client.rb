@@ -178,4 +178,16 @@ class TestClient < Test::Unit::TestCase
     @client.commit 'tx2'
   end
 
+  def test_client_open?
+    assert_equal true , @client.open?
+    @client.close
+    assert_equal false, @client.open?
+  end
+
+  def test_client_closed?
+    assert_equal false, @client.closed?
+    @client.close
+    assert_equal true, @client.closed?
+  end
+
 end

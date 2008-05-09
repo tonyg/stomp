@@ -21,9 +21,9 @@ module Stomp
       @socket_semaphore = Mutex.new
       @reliable = reliable
       @reconnectDelay = reconnectDelay
-      @closed = FALSE
+      @closed = false
       @subscriptions = {}
-      @failure = NIL
+      @failure = nil
       socket
     end
 
@@ -122,6 +122,7 @@ module Stomp
     # Close this connection
     def disconnect(headers = {})
       transmit "DISCONNECT", headers
+      @closed = true
     end
 
     # Return a pending message if one is available, otherwise
@@ -159,64 +160,64 @@ module Stomp
     end
 
     private
-    def _receive( s )
-      line = ' '
-      @read_semaphore.synchronize do
-        line = s.gets while line =~ /^\s*$/
-        return NIL if line == NIL
-        Message.new do |m|
-          m.command = line.chomp
-          m.headers = {}
-          until (line = s.gets.chomp) == ''
-            k = (line.strip[0, line.strip.index(':')]).strip
-            v = (line.strip[line.strip.index(':') + 1, line.strip.length]).strip
-            m.headers[k] = v
-          end
 
-          if (m.headers['content-length'])
-            m.body = s.read m.headers['content-length'].to_i
-            c = s.getc
-            raise "Invalid content length received" unless c == 0
-          else
-            m.body = ''
-            until (c = s.getc) == 0
-              m.body << c.chr
+      def _receive( s )
+        line = ' '
+        @read_semaphore.synchronize do
+          line = s.gets while line =~ /^\s*$/
+          return NIL if line == NIL
+          Message.new do |m|
+            m.command = line.chomp
+            m.headers = {}
+            until (line = s.gets.chomp) == ''
+              k = (line.strip[0, line.strip.index(':')]).strip
+              v = (line.strip[line.strip.index(':') + 1, line.strip.length]).strip
+              m.headers[k] = v
             end
+
+            if (m.headers['content-length'])
+              m.body = s.read m.headers['content-length'].to_i
+              c = s.getc
+              raise "Invalid content length received" unless c == 0
+            else
+              m.body = ''
+              until (c = s.getc) == 0
+                m.body << c.chr
+              end
+            end
+            #c = s.getc
+            #raise "Invalid frame termination received" unless c == 10
           end
-          #c = s.getc
-          #raise "Invalid frame termination received" unless c == 10
         end
       end
-    end
 
-    private
-    def transmit(command, headers={}, body='')
-      # The transmit my fail so we may need to retry.
-      while TRUE
-        begin
-          s = socket
-          _transmit(s, command, headers, body)
-          return
-        rescue
-          @failure = $!;
-          raise unless @reliable
-          $stderr.print "transmit failed: " + $!+"\n";
+      def transmit(command, headers={}, body='')
+        # The transmit may fail so we may need to retry.
+        while TRUE
+          begin
+            s = socket
+            _transmit(s, command, headers, body)
+            return
+          rescue
+            @failure = $!;
+            raise unless @reliable
+            $stderr.print "transmit failed: " + $!+"\n";
+          end
         end
       end
-    end
 
-    private
-    def _transmit(s, command, headers={}, body='')
-      @transmit_semaphore.synchronize do
-        s.puts command
-        headers.each {|k,v| s.puts "#{k}:#{v}" }
-        s.puts "content-length: #{body.length}"
-        s.puts "content-type: text/plain; charset=UTF-8"
-        s.puts
-        s.write body
-        s.write "\0"
+      def _transmit(s, command, headers={}, body='')
+        @transmit_semaphore.synchronize do
+          s.puts command
+          headers.each {|k,v| s.puts "#{k}:#{v}" }
+          s.puts "content-length: #{body.length}"
+          s.puts "content-type: text/plain; charset=UTF-8"
+          s.puts
+          s.write body
+          s.write "\0"
+        end
       end
-    end
+
   end
 
 end
