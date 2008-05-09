@@ -4,14 +4,28 @@ module Stomp
   # synchronous receives
   class Connection
 
-    def Connection.open(login = "", passcode = "", host='localhost', port=61613, reliable=FALSE, reconnectDelay=5)
-      Connection.new(login, passcode, host, port, reliable, reconnectDelay)
-    end
 
-    # Create a connection, requires a login and passcode.
-    # Can accept a host (default is localhost), and port
-    # (default is 61613) to connect to
-    def initialize(login, passcode, host='localhost', port=61613, reliable=false, reconnectDelay=5)
+    # A new Connection object accepts the following parameters:
+    #
+    #   login             (String,  default : '')
+    #   passcode          (String,  default : '')
+    #   host              (String,  default : 'localhost')
+    #   port              (Integer, default : 61613)
+    #   reliable          (Boolean, default : false)
+    #   reconnect_delay   (Integer, default : 5)
+    #
+    #   e.g. c = Client.new("username", "password", "localhost", 61613, true)
+    #
+# TODO
+    # Stomp URL :
+    #   A Stomp URL must begin with 'stomp://' and can be in one of the following forms:
+    #
+    #   stomp://host:port
+    #   stomp://host.domain.tld:port
+    #   stomp://user:pass@host:port
+    #   stomp://user:pass@host.domain.tld:port
+    #
+    def initialize(login = '', passcode = '', host = 'localhost', port = 61613, reliable = false, reconnect_delay = 5)
       @host = host
       @port = port
       @login = login
@@ -20,11 +34,16 @@ module Stomp
       @read_semaphore = Mutex.new
       @socket_semaphore = Mutex.new
       @reliable = reliable
-      @reconnectDelay = reconnectDelay
+      @reconnect_delay = reconnect_delay
       @closed = false
       @subscriptions = {}
       @failure = nil
       socket
+    end
+
+    # Syntactic sugar for 'Connection.new' See 'initialize' for usage.
+    def Connection.open(login = '', passcode = '', host = 'localhost', port = 61613, reliable = false, reconnect_delay = 5)
+      Connection.new(login, passcode, host, port, reliable, reconnect_delay)
     end
 
     def socket
@@ -43,8 +62,8 @@ module Stomp
             @failure = $!;
             s=nil;
             raise unless @reliable
-            $stderr.print "connect failed: " + $! +" will retry in #{@reconnectDelay}\n";
-            sleep(@reconnectDelay);
+            $stderr.print "connect failed: " + $! +" will retry in #{@reconnect_delay}\n";
+            sleep(@reconnect_delay);
           end
         end
         @socket = s

@@ -4,6 +4,9 @@
 * Refactored Rakefile and added stomp.gemspec for GitHub friendliness.
 * Added .gitignore file
 * Refactored layout of lib dir to separate concerns
+* Cleanup of initializers, and provide Client accessors for reading values (for testing)
+* Removed test/test_url_* files as they only differed from the test_client.rb in their
+  setup.  Super UnDry.  Added URL tests to cover stomp URL as param.
 
 == v1.0.5
 

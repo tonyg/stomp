@@ -7,30 +7,61 @@ module Stomp
   # in that thread if you have much message volume.
   class Client
 
-    # Accepts a username (default ""), password (default ""),
-    # host (default localhost), and port (default 61613)
-    def initialize(user = "", pass = "", host = "localhost", port = 61613, reliable = false)
-      if user =~ /stomp:\/\/([\w\.]+):(\d+)/
-        user = ""
-        pass = ""
-        host = $1
-        port = $2
-        reliable = false
-      elsif user =~ /stomp:\/\/([\w\.]+):(\w+)@(\w+):(\d+)/
-        user = $1
-        pass = $2
-        host = $3
-        port = $4
-        reliable = false
+    attr_reader :login, :passcode, :host, :port, :reliable, :running
+
+    # A new Client object can be initialized using two forms:
+    #
+    # Standard positional parameters:
+    #   login     (String,  default : '')
+    #   passcode  (String,  default : '')
+    #   host      (String,  default : 'localhost')
+    #   port      (Integer, default : 61613)
+    #   reliable  (Boolean, default : false)
+    #
+    #   e.g. c = Client.new('login', 'passcode', 'localhost', 61613, true)
+    #
+    # Stomp URL :
+    #   A Stomp URL must begin with 'stomp://' and can be in one of the following forms:
+    #
+    #   stomp://host:port
+    #   stomp://host.domain.tld:port
+    #   stomp://login:passcode@host:port
+    #   stomp://login:passcode@host.domain.tld:port
+    #
+    def initialize(login = '', passcode = '', host = 'localhost', port = 61613, reliable = false)
+
+      # Parse stomp:// URL's or set positional params
+      case login
+      when /stomp:\/\/([\w\.]+):(\d+)/ # e.g. stomp://host:port
+        # grabs the matching positions out of the regex which are stored as
+        # $1 (host), $2 (port), etc
+        @login = ''
+        @passcode = ''
+        @host = $1
+        @port = $2
+        @reliable = false
+      when /stomp:\/\/([\w\.]+):(\w+)@(\w+):(\d+)/ # e.g. stomp://login:passcode@host:port
+        @login = $1
+        @passcode = $2
+        @host = $3
+        @port = $4
+        @reliable = false
+      else
+        @login = login
+        @passcode = passcode
+        @host = host
+        @port = port
+        @reliable = reliable
       end
 
       @id_mutex = Mutex.new
       @ids = 1
-      @connection = Connection.open(user, pass, host, port, reliable)
+      @connection = Connection.new(@login, @passcode, @host, @port, @reliable)
       @listeners = {}
       @receipt_listeners = {}
       @running = true
       @replay_messages_by_txn = {}
+
       @listener_thread = Thread.start do
         while @running
           message = @connection.receive
@@ -48,18 +79,18 @@ module Stomp
           end
         end
       end
+
+    end
+
+    # Syntactic sugar for 'Client.new' See 'initialize' for usage.
+    def self.open(login = '', passcode = '', host = 'localhost', port = 61613, reliable = false)
+      Client.new(login, passcode, host, port, reliable)
     end
 
     # Join the listener thread for this client,
     # generally used to wait for a quit signal
     def join
       @listener_thread.join
-    end
-
-    # Accepts a username (default ""), password (default ""),
-    # host (default localhost), and port (default 61613)
-    def self.open(user = "", pass = "", host = "localhost", port = 61613, reliable = false)
-      Client.new(user, pass, host, port, reliable)
     end
 
     # Begin a transaction by name
@@ -156,15 +187,16 @@ module Stomp
     end
 
     private
-    def register_receipt_listener(listener)
-      id = -1
-      @id_mutex.synchronize do
-        id = @ids.to_s
-        @ids = @ids.succ
+
+      def register_receipt_listener(listener)
+        id = -1
+        @id_mutex.synchronize do
+          id = @ids.to_s
+          @ids = @ids.succ
+        end
+        @receipt_listeners[id] = listener
+        id
       end
-      @receipt_listeners[id] = listener
-      id
-    end
 
   end
 end
