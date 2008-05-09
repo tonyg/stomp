@@ -63,7 +63,7 @@ module Stomp
     end
 
     # Begin a transaction, requires a name for the transaction
-    def begin name, headers={}
+    def begin(name, headers = {})
       headers[:transaction] = name
       transmit "BEGIN", headers
     end
@@ -72,25 +72,25 @@ module Stomp
     # client acknowledgement ( connection.subscribe "/queue/a", :ack => 'client'g
     #
     # Accepts a transaction header ( :transaction => 'some_transaction_id' )
-    def ack message_id, headers={}
+    def ack(message_id, headers = {})
       headers['message-id'] = message_id
       transmit "ACK", headers
     end
 
     # Commit a transaction by name
-    def commit name, headers={}
+    def commit(name, headers = {})
       headers[:transaction] = name
       transmit "COMMIT", headers
     end
 
     # Abort a transaction by name
-    def abort name, headers={}
+    def abort(name, headers = {})
       headers[:transaction] = name
       transmit "ABORT", headers
     end
 
     # Subscribe to a destination, must specify a name
-    def subscribe(name, headers = {}, subId=nil)
+    def subscribe(name, headers = {}, subId = nil)
       headers[:destination] = name
       transmit "SUBSCRIBE", headers
 
@@ -102,7 +102,7 @@ module Stomp
     end
 
     # Unsubscribe from a destination, must specify a name
-    def unsubscribe(name, headers = {}, subId=nil)
+    def unsubscribe(name, headers = {}, subId = nil)
       headers[:destination] = name
       transmit "UNSUBSCRIBE", headers
       if @reliable
@@ -114,7 +114,7 @@ module Stomp
     # Send message to destination
     #
     # Accepts a transaction header ( :transaction => 'some_transaction_id' )
-    def send(destination, message, headers={})
+    def send(destination, message, headers = {})
       headers[:destination] = destination
       transmit "SEND", headers, message
     end
@@ -166,7 +166,8 @@ module Stomp
         @read_semaphore.synchronize do
           line = s.gets while line =~ /^\s*$/
           return nil if line.nil?
-          Message.new do |m|
+
+          message = Message.new do |m|
             m.command = line.chomp
             m.headers = {}
             until (line = s.gets.chomp) == ''
@@ -187,11 +188,13 @@ module Stomp
             end
             #c = s.getc
             #raise "Invalid frame termination received" unless c == 10
-          end
+          end # message
+          return message
+
         end
       end
 
-      def transmit(command, headers={}, body='')
+      def transmit(command, headers = {}, body = '')
         # The transmit may fail so we may need to retry.
         while TRUE
           begin
@@ -206,7 +209,7 @@ module Stomp
         end
       end
 
-      def _transmit(s, command, headers={}, body='')
+      def _transmit(s, command, headers = {}, body = '')
         @transmit_semaphore.synchronize do
           s.puts command
           headers.each {|k,v| s.puts "#{k}:#{v}" }

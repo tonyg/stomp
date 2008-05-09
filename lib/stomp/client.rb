@@ -9,7 +9,7 @@ module Stomp
 
     # Accepts a username (default ""), password (default ""),
     # host (default localhost), and port (default 61613)
-    def initialize user="", pass="", host="localhost", port=61613, reliable=false
+    def initialize(user = "", pass = "", host = "localhost", port = 61613, reliable = false)
       if user =~ /stomp:\/\/([\w\.]+):(\d+)/
         user = ""
         pass = ""
@@ -58,17 +58,17 @@ module Stomp
 
     # Accepts a username (default ""), password (default ""),
     # host (default localhost), and port (default 61613)
-    def self.open user="", pass="", host="localhost", port=61613, reliable=false
+    def self.open(user = "", pass = "", host = "localhost", port = 61613, reliable = false)
       Client.new user, pass, host, port, reliable
     end
 
     # Begin a transaction by name
-    def begin name, headers={}
+    def begin(name, headers = {})
       @connection.begin name, headers
     end
 
     # Abort a transaction by name
-    def abort name, headers={}
+    def abort(name, headers = {})
       @connection.abort name, headers
 
       # lets replay any ack'd messages in this transaction
@@ -83,7 +83,7 @@ module Stomp
     end
 
     # Commit a transaction by name
-    def commit name, headers={}
+    def commit(name, headers = {})
       txn_id = headers[:transaction]
       @replay_messages_by_txn.delete(txn_id)
       @connection.commit name, headers
@@ -93,14 +93,14 @@ module Stomp
     # which will be used as a callback listener
     #
     # Accepts a transaction header ( :transaction => 'some_transaction_id' )
-    def subscribe destination, headers={}
+    def subscribe(destination, headers = {})
       raise "No listener given" unless block_given?
       @listeners[destination] = lambda {|msg| yield msg}
       @connection.subscribe destination, headers
     end
 
     # Unsubecribe from a channel
-    def unsubscribe name, headers={}
+    def unsubscribe(name, headers = {})
       @connection.unsubscribe name, headers
       @listeners[name] = nil
     end
@@ -109,7 +109,7 @@ module Stomp
     # client acknowledgement ( connection.subscribe "/queue/a", :ack => 'client'g
     #
     # Accepts a transaction header ( :transaction => 'some_transaction_id' )
-    def acknowledge message, headers={}
+    def acknowledge(message, headers = {})
       txn_id = headers[:transaction]
       if txn_id
         # lets keep around messages ack'd in this transaction in case we rollback
@@ -132,7 +132,7 @@ module Stomp
     # block on receipt
     #
     # Accepts a transaction header ( :transaction => 'some_transaction_id' )
-    def send destination, message, headers = {}
+    def send(destination, message, headers = {})
       if block_given?
         headers['receipt'] = register_receipt_listener lambda {|r| yield r}
       end
@@ -156,7 +156,7 @@ module Stomp
     end
 
     private
-    def register_receipt_listener listener
+    def register_receipt_listener(listener)
       id = -1
       @id_mutex.synchronize do
         id = @ids.to_s
