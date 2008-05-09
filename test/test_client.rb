@@ -161,14 +161,14 @@ class TestClient < Test::Unit::TestCase
     message = nil
     @client.subscribe(destination, :ack => 'client') { |m| message = m }
 
-    sleep 0.1 while message == nil
+    sleep 0.1 while message.nil?
 
     assert_equal message_text, message.body
     @client.acknowledge message, :transaction => 'tx1'
     message = nil
     @client.abort 'tx1'
 
-    sleep 0.1 while message == nil
+    sleep 0.1 while message.nil?
 
     assert_not_nil message
     assert_equal message_text, message.body

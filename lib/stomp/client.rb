@@ -35,7 +35,7 @@ module Stomp
         while @running
           message = @connection.receive
           case
-          when message == NIL:
+          when message.nil?:
             break
           when message.command == 'MESSAGE':
             if listener = @listeners[message.headers['destination']]
@@ -114,7 +114,7 @@ module Stomp
       if txn_id
         # lets keep around messages ack'd in this transaction in case we rollback
         replay_list = @replay_messages_by_txn[txn_id]
-        if replay_list == nil
+        if replay_list.nil?
           replay_list = []
           @replay_messages_by_txn[txn_id] = replay_list
         end

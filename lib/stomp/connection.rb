@@ -31,8 +31,8 @@ module Stomp
       # Need to look into why the following synchronize does not work.
       #@read_semaphore.synchronize do
         s = @socket;
-        while s == NIL or @failure != NIL
-          @failure = NIL
+        while s.nil? || !@failure.nil?
+          @failure = nil
           begin
             s = TCPSocket.open @host, @port
             _transmit(s, "CONNECT", {:login => @login, :passcode => @passcode})
@@ -41,7 +41,7 @@ module Stomp
             @subscriptions.each { |k,v| _transmit(s, "SUBSCRIBE", v) }
           rescue
             @failure = $!;
-            s=NIL;
+            s=nil;
             raise unless @reliable
             $stderr.print "connect failed: " + $! +" will retry in #{@reconnectDelay}\n";
             sleep(@reconnectDelay);
@@ -90,23 +90,23 @@ module Stomp
     end
 
     # Subscribe to a destination, must specify a name
-    def subscribe(name, headers = {}, subId=NIL)
+    def subscribe(name, headers = {}, subId=nil)
       headers[:destination] = name
       transmit "SUBSCRIBE", headers
 
       # Store the sub so that we can replay if we reconnect.
       if @reliable
-        subId = name if subId==NIL
+        subId = name if subId.nil?
         @subscriptions[subId]=headers
       end
     end
 
     # Unsubscribe from a destination, must specify a name
-    def unsubscribe(name, headers = {}, subId=NIL)
+    def unsubscribe(name, headers = {}, subId=nil)
       headers[:destination] = name
       transmit "UNSUBSCRIBE", headers
       if @reliable
-        subId = name if subId==NIL
+        subId = name if subId.nil?
         @subscriptions.delete(subId)
       end
     end
@@ -129,7 +129,7 @@ module Stomp
     # return nil
     def poll
       @read_semaphore.synchronize do
-        return nil if @socket==NIL or !@socket.ready?
+        return nil if @socket.nil? or !@socket.ready?
         return receive
       end
     end
@@ -165,7 +165,7 @@ module Stomp
         line = ' '
         @read_semaphore.synchronize do
           line = s.gets while line =~ /^\s*$/
-          return NIL if line == NIL
+          return nil if line.nil?
           Message.new do |m|
             m.command = line.chomp
             m.headers = {}
