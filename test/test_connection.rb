@@ -3,7 +3,7 @@ require File.join(File.dirname(__FILE__), 'test_helper.rb')
 class TestStomp < Test::Unit::TestCase
 
   def setup
-    @conn = Stomp::Connection.open "test", "user", "localhost", 61613
+    @conn = Stomp::Connection.open("test", "user", "localhost", 61613)
   end
 
   def teardown
@@ -66,16 +66,30 @@ class TestStomp < Test::Unit::TestCase
     assert_equal "a\0" , msg.body
   end
 
-  def test_conection_open?
+  def test_connection_open?
     assert_equal true , @conn.open?
     @conn.disconnect
     assert_equal false, @conn.open?
   end
 
-  def test_conection_closed?
+  def test_connection_closed?
     assert_equal false, @conn.closed?
     @conn.disconnect
     assert_equal true, @conn.closed?
+  end
+
+  def test_response_is_instance_of_message_class
+    @conn.subscribe make_destination
+    @conn.send make_destination, "a\0"
+    msg = @conn.receive
+    assert_instance_of Stomp::Message , msg
+  end
+
+  def test_message_to_s
+    @conn.subscribe make_destination
+    @conn.send make_destination, "a\0"
+    msg = @conn.receive
+    assert_match /^<Stomp::Message headers=/ , msg.to_s
   end
 
 end
