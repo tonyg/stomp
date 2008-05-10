@@ -38,21 +38,25 @@ module Stomp
         @login = ''
         @passcode = ''
         @host = $1
-        @port = $2
+        @port = $2.to_i
         @reliable = false
-      when /stomp:\/\/([\w\.]+):(\w+)@(\w+):(\d+)/ # e.g. stomp://login:passcode@host:port
+      when /stomp:\/\/([\w\.]+):(\w+)@([\w\.]+):(\d+)/ # e.g. stomp://login:passcode@host:port
         @login = $1
         @passcode = $2
         @host = $3
-        @port = $4
+        @port = $4.to_i
         @reliable = false
       else
         @login = login
         @passcode = passcode
         @host = host
-        @port = port
+        @port = port.to_i
         @reliable = reliable
       end
+
+      raise ArgumentError if @host.nil? || @host.empty?
+      raise ArgumentError if @port.nil? || @port == '' || @port < 1 || @port > 65535
+      raise ArgumentError unless @reliable.is_a?(TrueClass) || @reliable.is_a?(FalseClass)
 
       @id_mutex = Mutex.new
       @ids = 1

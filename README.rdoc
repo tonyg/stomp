@@ -1,5 +1,11 @@
 ==README
 
+===Git Fork Info
+
+This project is a (temporary?) fork of the original which can be found on the codehaus.org site below.  The intention is to get some good changes into this working copy and submit those back to the original project if they want them. I am eager to apply any code or documentation patches that you may have to enhance the Stomp Ruby library making it more reliable, performant, or user friendly.
+
+===Original Code
+
 An implementation of the Stomp protocol for Ruby.
 
 Project Source :

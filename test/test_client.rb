@@ -178,54 +178,5 @@ class TestClient < Test::Unit::TestCase
     @client.commit 'tx2'
   end
 
-  def test_client_open?
-    assert_equal true , @client.open?
-    @client.close
-    assert_equal false, @client.open?
-  end
-
-  def test_client_closed?
-    assert_equal false, @client.closed?
-    @client.close
-    assert_equal true, @client.closed?
-  end
-
-  def test_client_initialized_with_url_host_port
-    @client = Stomp::Client.open("stomp://localhost:61613")
-    assert_equal '', @client.login
-    assert_equal '', @client.passcode
-    assert_equal 'localhost', @client.host
-    assert_equal '61613', @client.port
-    assert_equal false, @client.reliable
-  end
-
-# FIXME : I need to be mocked!
-#  def test_client_initialized_with_url_host_tld_port
-#    @client = Stomp::Client.open("stomp://foobar.com:61613")
-#    assert_equal '', @client.login
-#    assert_equal '', @client.passcode
-#    assert_equal 'foobar.com', @client.host
-#    assert_equal '61613', @client.port
-#    assert_equal false, @client.reliable
-#  end
-
-  def test_client_initialized_with_url_login_passcode_host_port
-    @client = Stomp::Client.open("stomp://testlogin:testpasscode@localhost:61613")
-    assert_equal 'testlogin', @client.login
-    assert_equal 'testpasscode', @client.passcode
-    assert_equal 'localhost', @client.host
-    assert_equal '61613', @client.port
-    assert_equal false, @client.reliable
-  end
-
-# FIXME : I am not being matched by the regex, so the entire URL is being stuffed into the @user.  Fix Regex to handle TLD
-#  def test_client_initialized_with_url_login_passcode_host_tld_port
-#    @client = Stomp::Client.open("stomp://testlogin:testpasscode@foobar.com:61613")
-#    assert_equal 'testlogin', @client.login
-#    assert_equal 'testpasscode', @client.passcode
-#    assert_equal 'foobar.com', @client.host
-#    assert_equal '61613', @client.port
-#    assert_equal false, @client.reliable
-#  end
 
 end

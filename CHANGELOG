@@ -7,6 +7,8 @@
 * Cleanup of initializers, and provide Client accessors for reading values (for testing)
 * Removed test/test_url_* files as they only differed from the test_client.rb in their
   setup.  Super UnDry.  Added URL tests to cover stomp URL as param.
+* Created initial RSpec specs which stub/mock objects and should not require a running
+  Stomp server instance.
 
 == v1.0.5
 

@@ -16,6 +16,7 @@ require 'rubygems'
 require 'rake/gempackagetask'
 require 'rake/testtask'
 require 'rake/rdoctask'
+require 'spec/rake/spectask'
 
 # read the contents of the gemspec, eval it, and assign it to 'spec'
 # this lets us maintain all gemspec info in one place.  Nice and DRY.
@@ -41,5 +42,11 @@ Rake::RDocTask.new do |rd|
   rd.rdoc_files.include("README.rdoc", "lib/**/*.rb")
   rd.rdoc_dir = 'doc'
   rd.options = spec.rdoc_options
+end
+
+desc "RSpec : run all"
+Spec::Rake::SpecTask.new('spec') do |t|
+  t.spec_files = FileList['spec/**/*.rb']
+  t.spec_opts = ["--color", "--format", "specdoc"]
 end
 
