@@ -4,6 +4,19 @@
 
 This project is a (temporary?) fork of the original which can be found on the codehaus.org site below.  The intention is to get some good changes into this working copy and submit those back to the original project if they want them. I am eager to apply any code or documentation patches that you may have to enhance the Stomp Ruby library making it more reliable, performant, or user friendly.
 
+===GitHub Gem Installation
+
+  GitHub serves gems prefixed by a username to differentiate different forks.
+  This project can be installed with:
+
+  # THIS COMMAND ONE TIME ONLY
+  gem sources -a http://gems.github.com/
+
+  # As often as you like
+  sudo gem install grempe-stomp
+
+  See http://gems.github.com/ if you want more info about GitHub and gems.
+
 ===Original Code
 
 An implementation of the Stomp protocol for Ruby.
