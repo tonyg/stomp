@@ -25,7 +25,7 @@ module Stomp
     #   stomp://user:pass@host:port
     #   stomp://user:pass@host.domain.tld:port
     #
-    def initialize(login = '', passcode = '', host = 'localhost', port = 61613, reliable = false, reconnect_delay = 5)
+    def initialize(login = '', passcode = '', host = 'localhost', port = 61613, reliable = false, reconnect_delay = 5, connect_headers = {})
       @host = host
       @port = port
       @login = login
@@ -35,6 +35,7 @@ module Stomp
       @socket_semaphore = Mutex.new
       @reliable = reliable
       @reconnect_delay = reconnect_delay
+      @connect_headers = connect_headers
       @closed = false
       @subscriptions = {}
       @failure = nil
@@ -42,8 +43,8 @@ module Stomp
     end
 
     # Syntactic sugar for 'Connection.new' See 'initialize' for usage.
-    def Connection.open(login = '', passcode = '', host = 'localhost', port = 61613, reliable = false, reconnect_delay = 5)
-      Connection.new(login, passcode, host, port, reliable, reconnect_delay)
+    def Connection.open(login = '', passcode = '', host = 'localhost', port = 61613, reliable = false, reconnect_delay = 5, connect_headers = {})
+      Connection.new(login, passcode, host, port, reliable, reconnect_delay, connect_headers)
     end
 
     def socket
@@ -54,7 +55,10 @@ module Stomp
           @failure = nil
           begin
             s = TCPSocket.open @host, @port
-            _transmit(s, "CONNECT", {:login => @login, :passcode => @passcode})
+	    headers = @connect_headers.clone
+	    headers[:login] = @login
+	    headers[:passcode] = @passcode
+            _transmit(s, "CONNECT", headers)
             @connect = _receive(s)
             # replay any subscriptions.
             @subscriptions.each { |k,v| _transmit(s, "SUBSCRIBE", v) }
