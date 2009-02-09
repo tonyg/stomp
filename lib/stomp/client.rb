@@ -70,13 +70,13 @@ module Stomp
         while @running
           message = @connection.receive
           case
-          when message.nil?:
+          when message.nil?
             break
-          when message.command == 'MESSAGE':
+          when message.command == 'MESSAGE'
             if listener = @listeners[message.headers['destination']]
               listener.call(message)
             end
-          when message.command == 'RECEIPT':
+          when message.command == 'RECEIPT'
             if listener = @receipt_listeners[message.headers['receipt-id']]
               listener.call(message)
             end
