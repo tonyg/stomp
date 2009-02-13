@@ -201,12 +201,18 @@ module Stomp
 
             if (m.headers['content-length'])
               m.body = s.read m.headers['content-length'].to_i
-              c = s.getc
+              c = RUBY_VERSION > '1.9' ? s.getc.ord : s.getc
               raise "Invalid content length received" unless c == 0
             else
               m.body = ''
-              until (c = s.getc) == 0
-                m.body << c.chr
+              if RUBY_VERSION > '1.9'
+                until (c = s.getc.ord) == 0
+                  m.body << c.chr
+                end
+              else
+                until (c = s.getc) == 0
+                  m.body << c.chr
+                end
               end
             end
             #c = s.getc
