@@ -27,7 +27,6 @@ Gem::Specification.new do |s|
   s.has_rdoc = true
   s.rdoc_options = ["--quiet", "--title", "stomp documentation", "--opname", "index.html", "--line-numbers", "--main", "README.rdoc", "--inline-source"]
   s.extra_rdoc_files = ["README.rdoc", "CHANGELOG", "LICENSE"]
-  s.required_ruby_version = "<1.9.1"
 end
   
 
