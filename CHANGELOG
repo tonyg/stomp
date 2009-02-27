@@ -1,3 +1,11 @@
+== 1.1 2009-27-02
+
+* Ruby 1.9 Support
+* Add support for connect_headers, to control the CONNECT command.
+* Refactored lib dir to separate concerns.
+* Better test coverage
+* General code cleanup. 
+
 == 1.0.6 2008-05-08
 
 * Whitespace cleanup

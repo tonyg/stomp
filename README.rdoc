@@ -1,30 +1,35 @@
 ==README
 
-===Git Fork Info
+http://stomp.rubyforge.org/
 
-This is a 1.9 compatible fork of another fork of Stomp.
+===Overview
 
-===GitHub Gem Installation
+An implementation of the Stomp protocol (http://stomp.codehaus.org/Protocol) for Ruby.
 
-  GitHub serves gems prefixed by a username to differentiate different forks.
-  This project can be installed with:
 
-  # THIS COMMAND ONE TIME ONLY
-  gem sources -a http://gems.github.com/
+===Example Usage
 
-  # As often as you like
-  sudo gem install zmalltalker-stomp
+    client = Stomp::Client.new("test", "user", "localhost", 61613)
+    client.send("/my/queue", "hello world!")
+    client.subscribe("/my/queue") do |msg|
+      p msg
+    end
 
-  See http://gems.github.com/ if you want more info about GitHub and gems.
+===Contact info 
 
-===Original Code
+Up until March 2009 the project was maintained and primarily developed by Brian McCallister. 
 
-An implementation of the Stomp protocol for Ruby.
+The project is now maintained by Johan Sørensen <johan@johansorensen.com>
 
-Project Source :
-  http://svn.codehaus.org/stomp/ruby/trunk
+===Source Code
+
+  http://gitorious.org/projects/stomp/
+  http://github.com/js/stomp/
+
+===Project urls
 
 Project Home :
+  http://gitorious.org/projects/stomp/
   http://rubyforge.org/projects/stomp/
 
 Stomp Protocol Info :
