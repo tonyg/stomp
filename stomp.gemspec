@@ -25,7 +25,7 @@ Gem::Specification.new do |s|
   s.test_files = ["test/test_client.rb", "test/test_connection.rb", "test/test_helper.rb"]
 
   s.has_rdoc = true
-  s.rdoc_options = ["--quiet", "--title", "stomp documentation", "--opname", "index.html", "--line-numbers", "--main", "README.rdoc", "--inline-source"]
+  s.rdoc_options = ["--quiet", "--title", "stomp documentation", "--line-numbers", "--main", "README.rdoc", "--inline-source"]
   s.extra_rdoc_files = ["README.rdoc", "CHANGELOG", "LICENSE"]
 end
   
