@@ -4,6 +4,7 @@ module Stomp
   # synchronous receives
   class Connection
 
+    attr_accessor :add_content_length_header
 
     # A new Connection object accepts the following parameters:
     #
@@ -39,6 +40,7 @@ module Stomp
       @closed = false
       @subscriptions = {}
       @failure = nil
+      @add_content_length_header = true
       socket
     end
 
@@ -139,7 +141,7 @@ module Stomp
     # Accepts a transaction header ( :transaction => 'some_transaction_id' )
     def send(destination, message, headers = {})
       headers[:destination] = destination
-      transmit("SEND", headers, message)
+      transmit("SEND", headers, message, @add_content_length_header)
     end
 
     # Close this connection
@@ -223,12 +225,12 @@ module Stomp
         end
       end
 
-      def transmit(command, headers = {}, body = '')
+      def transmit(command, headers = {}, body = '', add_content_length_header=true)
         # The transmit may fail so we may need to retry.
         while TRUE
           begin
             s = socket
-            _transmit(s, command, headers, body)
+            _transmit(s, command, headers, body, add_content_length_header)
             return
           rescue
             @failure = $!;
@@ -238,11 +240,11 @@ module Stomp
         end
       end
 
-      def _transmit(s, command, headers = {}, body = '')
+      def _transmit(s, command, headers = {}, body = '', add_content_length_header=true)
         @transmit_semaphore.synchronize do
           s.puts command
           headers.each {|k,v| s.puts "#{k}:#{v}" }
-          s.puts "content-length: #{body.length}"
+          s.puts "content-length: #{body.length}" if add_content_length_header
           s.puts "content-type: text/plain; charset=UTF-8"
           s.puts
           s.write body
