@@ -245,7 +245,7 @@ module Stomp
           s.puts command
           headers.each {|k,v| s.puts "#{k}:#{v}" }
           s.puts "content-length: #{body.length}" if add_content_length_header
-          s.puts "content-type: text/plain; charset=UTF-8"
+          s.puts "content-type: text/plain; charset=UTF-8" unless headers.has_key?( 'content-type' )
           s.puts
           s.write body
           s.write "\0"
