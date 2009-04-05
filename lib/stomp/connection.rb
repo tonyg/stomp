@@ -244,7 +244,7 @@ module Stomp
         @transmit_semaphore.synchronize do
           s.puts command
           headers.each {|k,v| s.puts "#{k}:#{v}" }
-          s.puts "content-length: #{body.length}" if add_content_length_header
+          s.puts "content-length: #{body.length}" if add_content_length_header or body.include? ?\0
           s.puts "content-type: text/plain; charset=UTF-8"
           s.puts
           s.write body
